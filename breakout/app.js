@@ -1,3 +1,8 @@
+import { Ball } from './ball.js'
+import { Paddle } from './paddle.js'
+import { Info } from './info.js'
+import { Brick } from './brick.js'
+
 class App {
   
   constructor () {
@@ -24,80 +29,39 @@ class App {
 
     document.addEventListener('keydown', this.keyDownHandler, false)
     document.addEventListener('keyup', this.keyUpHandler, false)
-    document.addEventListener("mousemove", this.mouseMoveHandler, false);
-
-    
+    document.addEventListener("mousemove", this.mouseMoveHandler, false);    
 
     this.brickRowCount = 3;
     this.brickColumnCount = 6;
     this.brickWidth = 75;
     this.brickHeight = 20;
-    this.brickPadding = 10;
-    this.brickOffsetTop = 30;
-    this.brickOffsetLeft = 30;
-
-    this.bricks = []
-    for (let i=0; i<this.brickColumnCount; i++) {
-      this.bricks[i] = []
-      for (let j=0; j<this.brickRowCount; j++) {
-        this.bricks[i][j] = {x:0, y:0, status: 1}
-      }
-    }
-
 
     this.score = 0
     this.lives = 3
     
+    this.ball = new Ball(this.ballRadius)
+    this.paddle = new Paddle(this.canvas, this.paddleWidth, this.paddleHeight)
+    this.info = new Info(this.canvas)
+    this.brick = new Brick(this.brickRowCount, this.brickColumnCount, this.brickWidth, this.brickHeight)
+    this.bricks = this.brick.getBricks()
     
     this.draw()
   }
 
   resize () {
-    this.stageWidth = 600
-    this.stageHeight = 600
-
+    this.stageWidth = 550
+    this.stageHeight = 450
     this.canvas.width = this.stageWidth
     this.canvas.height = this.stageHeight
-    // this.ctx.scale(2, 2) // 레티나 디스플레이용
-  }
-
-  resize2 () {
-    this.stageWidth = document.body.clientWidth
-    this.stageHeight = document.body.clientHeight
-
-    this.canvas.width = this.stageWidth * 2
-    this.canvas.height = this.stageHeight * 2
-    this.ctx.scale(2, 2) // 레티나 디스플레이용
-  }
-
-  render () {
-    this.ctx.beginPath()
-    this.ctx.rect(20, 40, 50, 50)
-    this.ctx.fillStyle = '#ff0000'
-    this.ctx.fill()
-    this.ctx.closePath()
-
-    const radians = (Math.PI / 180) * 360
-    console.log('radians : ', radians)
-
-    this.ctx.beginPath()
-    this.ctx.arc(140, 60, 20, 0, radians, false)
-    this.ctx.fillStyle = '#00ff00'
-    this.ctx.fill()
-    this.ctx.strokeStyle = 'rgba(0, 0, 255, 0.5)'
-    this.ctx.stroke()
-    this.ctx.closePath()
-    // console.log('this.ctx : ', this.ctx)
   }
 
   draw = () => {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    this.drawBricks()
-    this.drawBall()
-    this.drawPaddle()
+    this.brick.drawBricks(this.ctx)    
+    this.ball.drawBall(this.ctx, this.x, this.y)
+    this.paddle.drawPaddle(this.ctx, this.paddleX)
+    this.info.drawInfo(this.ctx, this.score, this.lives)
     this.collisionDetection()
-    this.drawScore()
-    this.drawLives()
 
     if (this.x + this.dx > this.canvas.width - this.ballRadius || this.x + this.dx < this.ballRadius) {
       this.dx = -this.dx
@@ -110,9 +74,8 @@ class App {
       } else {
         this.lives--;
         if(this.lives <= 0) {
-          alert("GAME OVER")
+          // alert("GAME OVER")
           document.location.reload()
-          // clearInterval(interval) // Needed for Chrome to end game
         }
         else {
           this.x = this.canvas.width / 2
@@ -137,53 +100,11 @@ class App {
     requestAnimationFrame(this.draw);
   }
 
-  drawBall () {
-    this.ctx.beginPath()
-    this.ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2)
-    this.ctx.fillStyle = '#0095DD'
-    this.ctx.fill()
-    this.ctx.closePath()
-  }
-
-  drawPaddle () {
-    // console.log('drawPaddle this.paddleX : ', this.paddleX)
-    this.ctx.beginPath()
-    this.ctx.rect(this.paddleX, this.canvas.height - this.paddleHeight, this.paddleWidth, this.paddleHeight)
-    // this.ctx.rect(150, 150, 100, 50)
-    this.ctx.fillStyle = '#0095DD'
-    this.ctx.fill()
-    this.ctx.closePath()
-  }
-
-  drawBricks() {
-    // console.log('drawBricks')
-    for (let i=0; i<this.brickColumnCount; i++) {
-      for (let j=0; j<this.brickRowCount; j++) {
-
-        if (this.bricks[i][j].status === 1) {
-          const brickX = (i * (this.brickWidth + this.brickPadding)) + this.brickOffsetLeft
-          const brickY = (j * (this.brickHeight + this.brickPadding)) + this.brickOffsetTop
-
-          this.bricks[i][j].x = brickX
-          this.bricks[i][j].y = brickY
-
-          // console.log('brickX : ', brickX)
-          // console.log('brickY : ', brickY)
-
-          this.ctx.beginPath()
-          this.ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight)
-          this.ctx.fillStyle = '#0095dd'
-          this.ctx.fill()
-          this.ctx.closePath()
-        }        
-      }
-    }
-  }
-
   collisionDetection() {
     for (let i=0; i<this.brickColumnCount; i++) {
       for (let j=0; j<this.brickRowCount; j++) {
         const b = this.bricks[i][j]
+        
         /*
         공의 x 좌표는 벽돌의 x 좌표보다 커야 한다.
         공의 x 좌표는 벽돌의 x 좌표 + 가로 길이보다 작아야 한다.
@@ -199,25 +120,13 @@ class App {
               b.status = 0
               this.score++
               if (this.score === this.brickRowCount * this.brickColumnCount) {
-                alert('YOU WIN !!')
+                // alert('YOU WIN !!')
                 document.location.reload()
               }
           }  
         }
       }
     }
-  }
-
-  drawScore() {
-    this.ctx.font = '16px Arial'
-    this.ctx.fillStyle = '#0095dd'
-    this.ctx.fillText('Score: ' + this.score, 8, 20)
-  }
-
-  drawLives() {
-    this.ctx.font = "16px Arial";
-    this.ctx.fillStyle = "#0095DD";
-    this.ctx.fillText("Lives: " + this.lives, this.canvas.width - 65, 20);
   }
 
   keyDownHandler = (e) => {
