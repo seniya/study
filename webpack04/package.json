@@ -1,0 +1,37 @@
+{
+  "name": "hello",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "serveAll": "concurrently --kill-others \"npm run serveBe\" \"npm run serveFe\"",
+    "serveBe": "json-server --delay 1000 --watch ./src/api/demo/db.js",
+    "build": "vue-cli-service build --mode production"
+  },
+  "dependencies": {
+    "ant-design-vue": "^1.7.2",
+    "axios": "^0.21.1",
+    "core-js": "^3.6.5",
+    "faker": "^5.1.0",
+    "json-server": "^0.16.3",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
+    "shortid": "^2.2.16",
+    "vue": "^2.6.11",
+    "vue-router": "^3.2.0",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.0",
+    "@vue/cli-plugin-eslint": "^3.12.0",
+    "@vue/cli-service": "^3.12.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "concurrently": "^5.3.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "sass": "^1.19.0",
+    "sass-loader": "^8.0.0",
+    "vue-template-compiler": "^2.6.10"
+  }
+}

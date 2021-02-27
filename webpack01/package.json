@@ -1,0 +1,24 @@
+{
+  "name": "webpack01",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack –config webpack.config.js",
+    "build2": "webpack",
+    "build3": "webpack -p",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vue-loader": "^15.9.6",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^3.12.0"
+  },
+  "dependencies": {
+    "vue": "^2.6.12"
+  }
+}
